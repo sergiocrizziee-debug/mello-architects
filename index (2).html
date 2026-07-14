@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sergio Simon Manyonyi — Architectural Technologist</title>
+<meta name="description" content="Sergio Simon Manyonyi — Architectural Technologist. Architectural design, BIM coordination, and construction detailing." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+:root{
+  --bg-primary:#F5F3EF;
+  --bg-secondary:#ECE8E1;
+  --surface:#FFFFFF;
+  --dark:#1E1F22;
+  --text:#1B1B1B;
+  --text-soft:#5F646B;
+  --accent:#6B8E7A;
+  --bronze:#B58A5A;
+  --blue:#4A6FA5;
+  --border:#D6D2CB;
+  --hover:#E3DDD3;
+  --glass: rgba(255,255,255,0.55);
+  /* project palette — extends the core material story (concrete / steel / stone / wood / daylight) */
+  --p1:#6B8E7A; /* sage green   */
+  --p2:#B58A5A; /* warm bronze  */
+  --p3:#4A6FA5; /* architectural blue */
+  --p4:#A9714C; /* clay terracotta */
+  --p5:#6E7580; /* brushed steel */
+  --p6:#8C9A5B; /* olive stone moss */
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:auto;}
+body{
+  background:var(--bg-primary);
+  color:var(--text);
+  font-family:'Inter',sans-serif;
+  overflow-x:hidden;
+  cursor:none;
+}
+::selection{background:var(--accent);color:#fff;}
+a{color:inherit;text-decoration:none;}
+img{max-width:100%;display:block;}
+.serif{font-family:'Instrument Serif',serif;}
+.mono{font-family:'JetBrains Mono',monospace;}
+
+/* ---------- layout helpers ---------- */
+.wrap{max-width:1400px;margin:0 auto;padding:0 48px;}
+.eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:var(--text-soft);
+  display:flex;align-items:center;gap:10px;
+}
+.eyebrow::before{content:"";width:22px;height:1px;background:var(--accent);display:inline-block;}
+.section{position:relative;padding:150px 0;border-top:1px solid var(--border);}
+.section-dark{background:var(--dark);color:#F5F3EF;}
+.section-dark .eyebrow{color:#9BA0A6;}
+.section-dark .eyebrow::before{background:var(--bronze);}
+
+h1,h2,h3{font-weight:400;letter-spacing:-0.01em;}
+.h-display{font-family:'Instrument Serif',serif;font-size:clamp(46px,7vw,108px);line-height:0.98;}
+.h-section{font-family:'Instrument Serif',serif;font-size:clamp(34px,4.4vw,64px);line-height:1.02;}
+p.lead{font-size:19px;line-height:1.65;color:var(--text-soft);font-weight:300;max-width:620px;}
+.section-dark p.lead{color:#B9BDC2;}
+
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:16px 30px;border-radius:100px;
+  font-size:13px;letter-spacing:0.06em;text-transform:uppercase;font-weight:500;
+  border:1px solid var(--text);
+  transition:.4s cubic-bezier(.16,1,.3,1);
+  position:relative;overflow:hidden;
+}
+.btn-primary{background:var(--text);color:var(--bg-primary);}
+.btn-primary:hover{background:var(--accent);border-color:var(--accent);color:#fff;transform:translateY(-2px);}
+.btn-ghost{background:transparent;color:var(--text);}
+.btn-ghost:hover{background:var(--text);color:var(--bg-primary);transform:translateY(-2px);}
+.section-dark .btn{border-color:#F5F3EF;color:#F5F3EF;}
+.section-dark .btn-ghost:hover{background:#F5F3EF;color:var(--dark);}
+
+/* ---------- custom cursor ---------- */
+.cursor-dot,.cursor-ring{position:fixed;top:0;left:0;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);}
+.cursor-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+.cursor-ring{width:38px;height:38px;border-radius:50%;border:1px solid rgba(107,142,122,.55);transition:width .3s,height .3s,border-color .3s,background .3s;}
+.cursor-ring.big{width:96px;height:96px;background:rgba(107,142,122,.08);border-color:var(--accent);}
+.cursor-ring .label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono';font-size:10px;letter-spacing:.1em;text-transform:uppercase;opacity:0;transition:opacity .3s;color:var(--accent);}
+.cursor-ring.big .label{opacity:1;}
+@media(max-width:900px){.cursor-dot,.cursor-ring{display:none;}body{cursor:auto;}}
+
+/* ---------- preloader ---------- */
+#preloader{position:fixed;inset:0;background:var(--dark);z-index:10000;display:flex;align-items:center;justify-content:center;flex-direction:column;}
+#preloader svg{width:220px;height:140px;}
+#preloader .plines path{fill:none;stroke:#5F646B;stroke-width:1;stroke-dasharray:400;stroke-dashoffset:400;}
+#preloader .letters path{fill:none;stroke:#ECE8E1;stroke-width:2.4;stroke-dasharray:500;stroke-dashoffset:500;}
+#preloader .pct{margin-top:26px;font-family:'JetBrains Mono';font-size:12px;letter-spacing:.2em;color:#7A7F85;}
+
+/* ---------- blueprint grid backdrop ---------- */
+.blueprint-bg{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
+  background-image:
+   linear-gradient(var(--border) 1px,transparent 1px),
+   linear-gradient(90deg,var(--border) 1px,transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(ellipse 70% 60% at 50% 0%, black 10%, transparent 75%);
+}
+
+/* ---------- nav ---------- */
+#nav{position:fixed;top:22px;left:50%;transform:translateX(-50%);z-index:900;
+  width:min(1180px,92%);
+  background:var(--glass);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border:1px solid rgba(255,255,255,.6);border-radius:100px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 12px 12px 26px;
+  transition:transform .5s cubic-bezier(.16,1,.3,1);
+}
+#nav.nav-hide{transform:translateX(-50%) translateY(-140%);}
+#nav .logo{font-family:'Instrument Serif',serif;font-size:20px;letter-spacing:.02em;}
+#nav .logo span{color:var(--accent);font-style:italic;}
+#nav ul{list-style:none;display:flex;gap:30px;}
+#nav ul a{font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--text-soft);transition:.3s;position:relative;}
+#nav ul a:hover{color:var(--text);}
+#nav .navcta{background:var(--text);color:var(--bg-primary);padding:11px 22px;border-radius:100px;font-size:12px;letter-spacing:.05em;text-transform:uppercase;}
+#nav .burger{display:none;}
+@media(max-width:1000px){
+  #nav ul{display:none;}
+  #nav .burger{display:block;padding:11px 18px;}
+}
+
+/* ---------- hero ---------- */
+#hero{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:center;overflow:hidden;padding-top:120px;}
+#hero .tagline{font-family:'JetBrains Mono';font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-soft);margin-bottom:26px;}
+#hero .name-line{overflow:hidden;}
+#hero .name-line span{display:inline-block;}
+#hero h1{font-family:'Instrument Serif',serif;font-size:clamp(52px,9.4vw,150px);line-height:.94;letter-spacing:-.01em;}
+#hero h1 em{font-style:italic;color:var(--accent);}
+#hero .role-strip{margin-top:34px;display:flex;flex-wrap:wrap;gap:14px;}
+#hero .role-strip span{font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;padding:9px 16px;border:1px solid var(--border);border-radius:100px;color:var(--text-soft);}
+#hero .headline{margin-top:56px;font-family:'Instrument Serif',serif;font-style:italic;font-size:clamp(24px,2.6vw,36px);max-width:760px;line-height:1.25;color:var(--text);}
+#hero .sub{margin-top:22px;max-width:560px;color:var(--text-soft);font-weight:300;font-size:17px;line-height:1.6;}
+#hero .hero-actions{margin-top:44px;display:flex;gap:16px;flex-wrap:wrap;}
+#hero .scroll-indicator{position:absolute;bottom:38px;right:48px;display:flex;flex-direction:column;align-items:center;gap:10px;}
+#hero .scroll-indicator .track{width:1px;height:64px;background:var(--border);position:relative;overflow:hidden;}
+#hero .scroll-indicator .track i{position:absolute;top:-30%;left:0;width:100%;height:30%;background:var(--accent);animation:scrolldrop 2s ease-in-out infinite;}
+@keyframes scrolldrop{0%{top:-30%}60%{top:100%}100%{top:100%}}
+#hero .scroll-indicator span{font-family:'JetBrains Mono';font-size:10px;letter-spacing:.2em;color:var(--text-soft);writing-mode:vertical-rl;}
+#hero .coord{position:absolute;top:130px;right:48px;font-family:'JetBrains Mono';font-size:11px;color:var(--text-soft);text-align:right;line-height:1.8;letter-spacing:.05em;}
+@media(max-width:760px){#hero .coord{display:none;}}
+
+/* ---------- about ---------- */
+.about-grid{display:grid;grid-template-columns:0.85fr 1.15fr;gap:80px;align-items:start;}
+.portrait-frame{position:relative;aspect-ratio:3/4;border-radius:2px;overflow:hidden;background:linear-gradient(160deg,#DAD4C8,#EFECE5 55%,#C9CFC6);border:1px solid var(--border);}
+.portrait-frame::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background-image:linear-gradient(rgba(30,31,34,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(30,31,34,.05) 1px,transparent 1px);background-size:24px 24px;}
+.portrait-frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.portrait-frame .initials{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-size:140px;color:rgba(30,31,34,.14);font-style:italic;}
+.portrait-frame .tag{position:absolute;bottom:22px;left:22px;font-family:'JetBrains Mono';font-size:11px;letter-spacing:.1em;background:var(--glass);backdrop-filter:blur(10px);padding:8px 14px;border-radius:100px;border:1px solid rgba(255,255,255,.6);}
+.about-copy p{color:var(--text-soft);font-weight:300;line-height:1.75;font-size:16.5px;margin-bottom:20px;}
+.about-copy .quote{font-family:'Instrument Serif',serif;font-style:italic;font-size:28px;line-height:1.35;color:var(--text);margin:40px 0;padding-left:26px;border-left:2px solid var(--accent);}
+.stat-row{margin-top:56px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--border);}
+.stat{padding:26px 20px 0 0;border-right:1px solid var(--border);}
+.stat:last-child{border-right:none;}
+.stat .num{font-family:'Instrument Serif',serif;font-size:44px;color:var(--accent);}
+.stat .lbl{margin-top:6px;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--text-soft);}
+@media(max-width:900px){.about-grid{grid-template-columns:1fr;}.stat-row{grid-template-columns:repeat(2,1fr);}}
+
+/* ---------- skills ---------- */
+.skill-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-top:70px;}
+.skill-card{background:var(--surface);padding:34px 30px;transition:.4s;position:relative;overflow:hidden;}
+.skill-card:hover{background:var(--dark);color:#F5F3EF;}
+.skill-card .idx{font-family:'JetBrains Mono';font-size:11px;color:var(--text-soft);}
+.skill-card:hover .idx{color:var(--bronze);}
+.skill-card h4{font-family:'Instrument Serif',serif;font-size:24px;margin-top:16px;font-weight:400;}
+.skill-card p{margin-top:10px;font-size:13.5px;color:var(--text-soft);font-weight:300;line-height:1.55;}
+.skill-card:hover p{color:#B9BDC2;}
+@media(max-width:900px){.skill-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.skill-grid{grid-template-columns:1fr;}}
+
+/* ---------- software marquee ---------- */
+.marquee-wrap{margin-top:60px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:30px 0;overflow:hidden;}
+.marquee-track{display:flex;gap:60px;width:max-content;animation:marquee 32s linear infinite;}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.marquee-track span{font-family:'Instrument Serif',serif;font-style:italic;font-size:28px;color:var(--text-soft);white-space:nowrap;display:flex;align-items:center;gap:16px;}
+.marquee-track span::after{content:"•";color:var(--bronze);font-style:normal;}
+
+/* ---------- projects ---------- */
+.palette-legend{display:flex;flex-wrap:wrap;gap:22px;margin-top:34px;}
+.palette-legend .pl-item{display:flex;align-items:center;gap:9px;font-family:'JetBrains Mono';font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--text-soft);}
+.palette-legend .pl-swatch{width:14px;height:14px;border-radius:50%;border:1px solid rgba(0,0,0,.08);}
+.project-list{margin-top:50px;}
+.project-row{display:grid;grid-template-columns:70px 1fr 320px 120px;align-items:center;gap:30px;padding:36px 0;border-top:1px solid var(--border);cursor:pointer;position:relative;}
+.project-list .project-row:last-child{border-bottom:1px solid var(--border);}
+.project-row .pnum{font-family:'JetBrains Mono';font-size:13px;color:var(--text-soft);display:flex;align-items:center;gap:9px;}
+.project-row .pdot{width:7px;height:7px;border-radius:50%;background:var(--accent-c,var(--accent));flex-shrink:0;}
+.project-row h3{font-family:'Instrument Serif',serif;font-size:clamp(26px,3vw,42px);transition:.4s;}
+.project-row:hover h3{color:var(--accent-c,var(--accent));transform:translateX(10px);}
+.project-row .ptags{display:flex;flex-wrap:wrap;gap:8px;}
+.project-row .ptags span{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--text-soft);border:1px solid var(--border);padding:5px 10px;border-radius:100px;}
+.project-row .parrow{justify-self:end;font-size:22px;transition:.4s;}
+.project-row:hover .parrow{transform:translateX(6px) rotate(45deg);color:var(--accent-c,var(--accent));}
+.project-preview{position:fixed;top:0;left:0;width:280px;height:190px;pointer-events:none;z-index:850;border-radius:4px;overflow:hidden;opacity:0;transform:scale(.9);transition:opacity .25s,transform .25s;border:1px solid var(--border);background:var(--bg-secondary);}
+.project-preview img{width:100%;height:100%;object-fit:cover;}
+.project-preview .fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-style:italic;font-size:20px;color:var(--text-soft);}
+.project-preview .pbar{position:absolute;left:0;top:0;bottom:0;width:4px;z-index:2;}
+@media(max-width:900px){.project-row{grid-template-columns:40px 1fr 40px;}.project-row .ptags{display:none;}.project-preview{display:none;}}
+
+/* ---------- process ---------- */
+.process-track{margin-top:80px;display:flex;overflow-x:auto;gap:0;padding-bottom:20px;scrollbar-width:none;}
+.process-track::-webkit-scrollbar{display:none;}
+.process-step{min-width:240px;padding:0 34px 0 0;position:relative;}
+.process-step:not(:last-child)::after{content:"";position:absolute;top:12px;right:0;width:34px;height:1px;background:var(--border);}
+.process-step .pn{font-family:'JetBrains Mono';font-size:11px;color:var(--bronze);}
+.process-step h4{font-family:'Instrument Serif',serif;font-size:22px;margin-top:14px;}
+.process-step p{margin-top:10px;font-size:13.5px;color:var(--text-soft);font-weight:300;line-height:1.55;}
+
+/* ---------- gallery ---------- */
+.masonry{columns:3 220px;column-gap:16px;margin-top:70px;}
+.masonry .g-item{break-inside:avoid;margin-bottom:16px;border-radius:3px;overflow:hidden;border:1px solid var(--border);position:relative;background:linear-gradient(160deg,#e7e3da,#d3cec2);cursor:pointer;}
+.masonry .g-item img{width:100%;height:100%;object-fit:cover;display:block;transition:.6s cubic-bezier(.16,1,.3,1);}
+.masonry .g-item:hover img{transform:scale(1.08);}
+.masonry .g-item .g-label{position:absolute;bottom:0;left:0;right:0;padding:14px;font-family:'JetBrains Mono';font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:linear-gradient(0deg,rgba(0,0,0,.55),transparent);opacity:0;transition:.3s;}
+.masonry .g-item:hover .g-label{opacity:1;}
+
+/* ---------- experience ---------- */
+.timeline{margin-top:70px;position:relative;}
+.timeline::before{content:"";position:absolute;left:120px;top:0;bottom:0;width:1px;background:var(--border);}
+.tl-item{display:grid;grid-template-columns:120px 1fr;gap:40px;padding:34px 0;position:relative;}
+.tl-item .tl-year{font-family:'JetBrains Mono';font-size:13px;color:var(--text-soft);padding-top:4px;}
+.tl-item .tl-dot{position:absolute;left:116px;top:38px;width:9px;height:9px;border-radius:50%;background:var(--accent);border:3px solid var(--bg-primary);}
+.tl-item h4{font-family:'Instrument Serif',serif;font-size:24px;}
+.tl-item .tl-role{color:var(--bronze);font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;margin-top:6px;}
+.tl-item p{margin-top:10px;color:var(--text-soft);font-weight:300;font-size:15px;line-height:1.6;max-width:560px;}
+@media(max-width:700px){.timeline::before{left:60px;}.tl-item{grid-template-columns:60px 1fr;gap:20px;}.tl-item .tl-dot{left:56px;}}
+
+/* ---------- contact ---------- */
+#contact{background:var(--dark);color:#F5F3EF;}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;margin-top:70px;}
+.field{margin-bottom:26px;position:relative;}
+.field input,.field textarea{
+  width:100%;background:transparent;border:none;border-bottom:1px solid #3B3D42;
+  color:#F5F3EF;font-family:'Inter';font-size:16px;padding:14px 2px;outline:none;transition:.3s;
+}
+.field textarea{resize:none;height:90px;}
+.field label{position:absolute;left:2px;top:14px;color:#7A7F85;font-size:15px;pointer-events:none;transition:.25s;}
+.field input:focus,.field textarea:focus{border-color:var(--accent);}
+.field input:focus + label,.field textarea:focus + label,.field.filled label{top:-14px;font-size:11px;letter-spacing:.05em;color:var(--accent);}
+.contact-info a{display:flex;align-items:center;gap:14px;padding:18px 0;border-bottom:1px solid #2C2D31;font-size:17px;transition:.3s;}
+.contact-info a:hover{color:var(--bronze);padding-left:8px;}
+.socials{display:flex;gap:18px;margin-top:40px;}
+.socials a{width:44px;height:44px;border:1px solid #3B3D42;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono';font-size:11px;transition:.3s;}
+.socials a:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-3px);}
+.form-success{display:none;font-family:'Instrument Serif',serif;font-style:italic;font-size:22px;color:var(--accent);margin-top:20px;}
+
+/* ---------- footer ---------- */
+footer{background:var(--dark);color:#7A7F85;padding:60px 0 30px;border-top:1px solid #2C2D31;}
+footer .fgrid{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:30px;}
+footer .flogo{font-family:'Instrument Serif',serif;font-size:26px;color:#F5F3EF;}
+footer ul{list-style:none;display:flex;gap:24px;flex-wrap:wrap;}
+footer ul a{font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:#7A7F85;transition:.3s;}
+footer ul a:hover{color:#F5F3EF;}
+footer .bottom{margin-top:40px;padding-top:24px;border-top:1px solid #2C2D31;display:flex;justify-content:space-between;font-size:12px;color:#5A5D62;flex-wrap:wrap;gap:10px;}
+.back-top{width:40px;height:40px;border:1px solid #3B3D42;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:.3s;}
+.back-top:hover{background:var(--accent);border-color:var(--accent);}
+
+/* ---------- reveal utility ---------- */
+.reveal{opacity:0;transform:translateY(36px);}
+
+/* ---------- modal ---------- */
+#pmodal{position:fixed;inset:0;z-index:9500;background:rgba(27,27,27,.7);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .35s;padding:24px;}
+#pmodal.open{opacity:1;pointer-events:auto;}
+#pmodal .modal-card{background:var(--surface);max-width:760px;width:100%;max-height:86vh;overflow:auto;border-radius:6px;padding:56px;transform:translateY(30px);transition:transform .4s cubic-bezier(.16,1,.3,1);}
+#pmodal.open .modal-card{transform:translateY(0);}
+#pmodal .close{position:absolute;top:24px;right:30px;font-size:26px;color:var(--text-soft);cursor:pointer;}
+#pmodal .mhero{width:100%;height:260px;object-fit:cover;border-radius:4px;margin-bottom:26px;border:1px solid var(--border);}
+#pmodal .mtitle{font-family:'Instrument Serif',serif;font-size:38px;margin-bottom:8px;}
+#pmodal .msub{color:var(--bronze);font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;margin-bottom:26px;}
+#pmodal .mmeta{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:26px 0;padding:22px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+#pmodal .mmeta div span{display:block;font-size:11px;color:var(--text-soft);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+#pmodal p{color:var(--text-soft);font-weight:300;line-height:1.7;font-size:15px;margin-bottom:16px;}
+#pmodal .mtags{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;}
+#pmodal .mtags span{font-size:11px;border:1px solid var(--border);padding:6px 12px;border-radius:100px;color:var(--text-soft);text-transform:uppercase;letter-spacing:.05em;}
+
+@media(max-width:760px){
+  .wrap{padding:0 24px;}
+  .section{padding:100px 0;}
+  #hero .coord{display:none;}
+  .about-grid,.contact-grid{grid-template-columns:1fr;gap:50px;}
+  .project-row{grid-template-columns:1fr;gap:12px;text-align:left;}
+  .project-row .parrow{justify-self:start;}
+}
+</style>
+</head>
+<body>
+
+<div id="preloader">
+  <svg viewBox="0 0 220 140" class="plines">
+    <path d="M10 10 H210 V130 H10 Z"/>
+    <path d="M10 70 H210"/>
+    <path d="M110 10 V130"/>
+    <path d="M10 10 L60 40"/>
+    <path d="M210 130 L160 100"/>
+  </svg>
+  <svg viewBox="0 0 220 90" class="letters" style="margin-top:-90px;">
+    <path d="M20 20 Q10 10 25 10 Q40 10 40 22 Q40 34 20 36 Q5 38 5 50 Q5 65 25 65"/>
+    <path d="M60 12 V65 M60 12 L88 65 M116 12 L88 65"/>
+    <path d="M130 65 V12 H150 Q165 12 165 24 Q165 36 150 36 H130 M150 36 L168 65"/>
+  </svg>
+  <div class="pct mono" id="preloadPct">LOADING — 00%</div>
+</div>
+
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"><span class="label" id="cursorLabel">VIEW</span></div>
+<div class="blueprint-bg"></div>
+<div class="project-preview" id="projPreview"><div class="pbar" id="projPreviewBar"></div><img id="projPreviewImg" alt=""><div class="fallback" id="projPreviewText" style="display:none;"></div></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#hero" class="logo">S<span>.</span>S<span>.</span>M</a>
+  <ul>
+    <li><a href="#about">About</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#technical">Technical</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#experience">Experience</a></li>
+  </ul>
+  <a href="#contact" class="navcta">Contact</a>
+</nav>
+
+<!-- HERO -->
+<header id="hero">
+  <div class="wrap">
+    <div class="tagline">Architectural Technologist — Based in Tanzania</div>
+    <div class="name-line"><span id="nameReveal">SERGIO&nbsp;SIMON</span></div>
+    <h1><div class="name-line"><span>MANY<em>O</em>NYI</span></div></h1>
+    <div class="role-strip">
+      <span>Architectural Designer</span>
+      <span>BIM Specialist</span>
+      <span>Construction Technology</span>
+    </div>
+    <p class="headline">"Designing Spaces. Engineering Possibilities."</p>
+    <p class="sub">I create thoughtful architectural solutions by combining design creativity, technical precision, BIM workflows, and construction technology to transform concepts into buildable environments.</p>
+    <div class="hero-actions">
+      <a href="#projects" class="btn btn-primary" data-cursor="view">Explore Portfolio</a>
+      <a href="#" class="btn btn-ghost" id="cvBtn">Download CV</a>
+      <a href="#contact" class="btn btn-ghost">Contact Me</a>
+    </div>
+  </div>
+  <div class="coord mono">
+    LAT -8.9094° S<br>LNG 33.4608° E<br>MBEYA, TZ
+  </div>
+  <div class="scroll-indicator">
+    <span>SCROLL</span>
+    <div class="track"><i></i></div>
+  </div>
+</header>
+
+<!-- ABOUT -->
+<section class="section" id="about">
+  <div class="wrap">
+    <div class="eyebrow reveal">01 — About</div>
+    <h2 class="h-section reveal" style="margin-top:20px;">Designing with purpose.<br>Building with precision.</h2>
+
+    <div class="about-grid" style="margin-top:70px;">
+      <div class="portrait-frame reveal">
+        <div class="initials">SSM</div>
+        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=900&q=80" alt="Sergio Simon Manyonyi — portrait placeholder, replace with your own photo" loading="lazy" onerror="this.remove()">
+        <div class="tag mono">Est. Portfolio — 2026</div>
+      </div>
+      <div class="about-copy">
+        <p class="reveal">I believe architecture is more than creating beautiful spaces — it's about solving real problems through thoughtful design, technical precision, and innovation. Every line drawn, every detail developed, and every model created should contribute to environments that are functional, sustainable, and built to last.</p>
+        <p class="reveal">I'm Sergio Simon Manyonyi, an Architectural Technologist driven by a passion for transforming concepts into buildable realities. My work sits at the intersection of architectural design, Building Information Modeling, and construction technology, where creativity meets technical execution.</p>
+        <div class="quote reveal">"Architecture should inspire through design, perform through technology, and endure through thoughtful construction."</div>
+        <p class="reveal">My design process begins with understanding people, place, and purpose. Through research, site analysis, and iterative development, I create solutions that respond to both human needs and construction realities — from early sketches to detailed construction drawings and immersive visualizations.</p>
+
+        <div class="stat-row reveal">
+          <div class="stat"><div class="num" data-count="18">0</div><div class="lbl">Projects Completed</div></div>
+          <div class="stat"><div class="num" data-count="45">0</div><div class="lbl">Construction Details</div></div>
+          <div class="stat"><div class="num" data-count="12">0</div><div class="lbl">BIM Models</div></div>
+          <div class="stat"><div class="num" data-count="24">0</div><div class="lbl">Academic Designs</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section class="section" id="skills">
+  <div class="wrap">
+    <div class="eyebrow reveal">02 — Capabilities</div>
+    <h2 class="h-section reveal" style="margin-top:20px;">A technologist's toolkit,<br>an architect's eye.</h2>
+
+    <div class="skill-grid reveal">
+      <div class="skill-card"><span class="idx mono">01</span><h4>Architectural Design</h4><p>Concept development through iterative sketching, massing, and spatial planning.</p></div>
+      <div class="skill-card"><span class="idx mono">02</span><h4>Construction Technology</h4><p>Applying material science and building systems to real-world assemblies.</p></div>
+      <div class="skill-card"><span class="idx mono">03</span><h4>Construction Documentation</h4><p>Working drawings, schedules, and specifications ready for site.</p></div>
+      <div class="skill-card"><span class="idx mono">04</span><h4>Building Services Coordination</h4><p>Integrating MEP systems within architectural and structural constraints.</p></div>
+      <div class="skill-card"><span class="idx mono">05</span><h4>BIM</h4><p>Parametric modelling, families, clash detection, and IFC coordination.</p></div>
+      <div class="skill-card"><span class="idx mono">06</span><h4>Construction Detailing</h4><p>Wall sections, roof and window details engineered for buildability.</p></div>
+      <div class="skill-card"><span class="idx mono">07</span><h4>3D Visualization</h4><p>Photoreal renders and walkthroughs that communicate design intent.</p></div>
+      <div class="skill-card"><span class="idx mono">08</span><h4>Interior Design</h4><p>Material palettes and spatial experiences tuned to human scale.</p></div>
+      <div class="skill-card"><span class="idx mono">09</span><h4>Landscape Concepts</h4><p>Site-responsive outdoor spaces that extend the built environment.</p></div>
+      <div class="skill-card"><span class="idx mono">10</span><h4>Urban Planning</h4><p>Reading context and density to shape considered site strategies.</p></div>
+      <div class="skill-card"><span class="idx mono">11</span><h4>Research</h4><p>Precedent studies and site analysis that ground every concept.</p></div>
+      <div class="skill-card"><span class="idx mono">12</span><h4>Presentation Design</h4><p>Editorial layouts that make technical work easy to read.</p></div>
+    </div>
+
+    <div class="marquee-wrap reveal">
+      <div class="marquee-track" id="marqueeTrack">
+        <span>Revit</span><span>ArchiCAD</span><span>AutoCAD</span><span>SketchUp</span><span>Lumion</span><span>Enscape</span><span>Twinmotion</span><span>Photoshop</span><span>Illustrator</span><span>InDesign</span><span>Rhino</span><span>MS Office</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section class="section" id="projects">
+  <div class="wrap">
+    <div class="eyebrow reveal">03 — Selected Work</div>
+    <h2 class="h-section reveal" style="margin-top:20px;">Featured Projects</h2>
+    <p class="lead reveal" style="margin-top:22px;">Six studies spanning hospitality, infrastructure, furniture, and construction detailing — each developed from concept through buildable documentation.</p>
+
+    <div class="palette-legend reveal" id="paletteLegend"></div>
+
+    <div class="project-list reveal" id="projectList"></div>
+  </div>
+</section>
+
+<!-- TECHNICAL / BIM -->
+<section class="section section-dark" id="technical">
+  <div class="wrap">
+    <div class="eyebrow reveal">04 — Technical &amp; BIM</div>
+    <h2 class="h-section reveal" style="margin-top:20px;">Where drawings become<br>buildable intelligence.</h2>
+
+    <div class="about-grid" style="margin-top:70px;grid-template-columns:1fr 1fr;">
+      <div class="reveal">
+        <h3 class="serif" style="font-size:26px;font-style:italic;color:var(--bronze);">Technical Drawings</h3>
+        <p style="color:#B9BDC2;font-weight:300;line-height:1.7;margin-top:16px;font-size:15px;">
+          A blueprint-style archive of working drawings — sections, elevations, and construction details resolved to site-ready precision.
+        </p>
+        <div class="ptags" style="margin-top:22px;display:flex;flex-wrap:wrap;gap:8px;">
+          <span style="border:1px solid #3B3D42;padding:6px 12px;border-radius:100px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;">Roof Details</span>
+          <span style="border:1px solid #3B3D42;padding:6px 12px;border-radius:100px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;">Window Details</span>
+          <span style="border:1px solid #3B3D42;padding:6px 12px;border-radius:100px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;">Foundation Details</span>
+          <span style="border:1px solid #3B3D42;padding:6px 12px;border-radius:100px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;">Wall Sections</span>
+        </div>
+      </div>
+      <div class="reveal">
+        <h3 class="serif" style="font-size:26px;font-style:italic;color:var(--bronze);">BIM Workflow</h3>
+        <p style="color:#B9BDC2;font-weight:300;line-height:1.7;margin-top:16px;font-size:15px;">
+          Coordinated Revit and ArchiCAD models — from families and schedules through clash detection and IFC export for multidisciplinary teams.
+        </p>
+        <div class="ptags" style="margin-top:22px;display:flex;flex-wrap:wrap;gap:8px;">
+          <span style="border:1px solid #3B3D42;padding:6px 12px;border-radius:100px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;">Revit Models</span>
+          <span style="border:1px solid #3B3D42;padding:6px 12px;border-radius:100px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;">Clash Detection</span>
+          <span style="border:1px solid #3B3D42;padding:6px 12px;border-radius:100px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;">IFC Export</span>
+          <span style="border:1px solid #3B3D42;padding:6px 12px;border-radius:100px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;">3D Sections</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- process -->
+    <div class="eyebrow reveal" style="margin-top:110px;">Design Process</div>
+    <div class="process-track reveal">
+      <div class="process-step"><div class="pn mono">Stage 01</div><h4>Research</h4><p>Understanding people, place, and purpose.</p></div>
+      <div class="process-step"><div class="pn mono">Stage 02</div><h4>Site Analysis</h4><p>Reading context, climate, and constraints.</p></div>
+      <div class="process-step"><div class="pn mono">Stage 03</div><h4>Concept</h4><p>Translating insight into spatial ideas.</p></div>
+      <div class="process-step"><div class="pn mono">Stage 04</div><h4>Development</h4><p>Testing and refining through iteration.</p></div>
+      <div class="process-step"><div class="pn mono">Stage 05</div><h4>Technical Documentation</h4><p>Resolving design into buildable detail.</p></div>
+      <div class="process-step"><div class="pn mono">Stage 06</div><h4>Visualization</h4><p>Communicating intent with clarity.</p></div>
+      <div class="process-step"><div class="pn mono">Stage 07</div><h4>Presentation</h4><p>Delivering the story with precision.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section class="section" id="gallery">
+  <div class="wrap">
+    <div class="eyebrow reveal">05 — Gallery</div>
+    <h2 class="h-section reveal" style="margin-top:20px;">Studio Archive</h2>
+    <div class="masonry reveal" id="galleryGrid"></div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section class="section" id="experience">
+  <div class="wrap">
+    <div class="eyebrow reveal">06 — Journey</div>
+    <h2 class="h-section reveal" style="margin-top:20px;">Experience &amp; Education</h2>
+
+    <div class="timeline reveal">
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-year mono">2026</div><div><h4>National Architectural Design Competition</h4><div class="tl-role">Finalist — Student Category</div><p>Recognised for a hospitality concept balancing spatial efficiency with construction feasibility.</p></div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-year mono">2025</div><div><h4>BIM &amp; Digital Construction Workshop</h4><div class="tl-role">Certificate — Coordination Track</div><p>Intensive training in Revit-based clash detection and multidisciplinary model coordination.</p></div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-year mono">2024</div><div><h4>Construction Detailing Research Study</h4><div class="tl-role">Independent Research</div><p>A comparative study of envelope detailing strategies for tropical climates.</p></div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-year mono">2022 — Present</div><div><h4>Bachelor of Architectural Technology</h4><div class="tl-role">Education</div><p>Coursework spanning design studio, technology, construction detailing, and digital modelling.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="section" id="contact">
+  <div class="wrap">
+    <div class="eyebrow reveal">07 — Contact</div>
+    <h2 class="h-display reveal" style="margin-top:24px;font-size:clamp(38px,6vw,84px);">Let's build<br>something <em style="color:var(--bronze);font-style:italic;">real</em>.</h2>
+
+    <div class="contact-grid">
+      <div class="reveal">
+        <div class="contact-info">
+          <a href="mailto:sergiosimon72@hotmail.com">✉ sergiosimon72@hotmail.com</a>
+          <a href="tel:+255743327134">☎ +255 743 327 134</a>
+          <a href="#">📍 Mbeya, Tanzania</a>
+        </div>
+        <div class="socials">
+          <a href="#" title="LinkedIn">in</a>
+          <a href="#" title="Instagram">ig</a>
+          <a href="#" title="Behance">be</a>
+          <a href="#" title="GitHub">gh</a>
+        </div>
+      </div>
+      <form class="reveal" id="contactForm">
+        <div class="field"><input type="text" required id="fname"><label>Your Name</label></div>
+        <div class="field"><input type="email" required id="femail"><label>Your Email</label></div>
+        <div class="field"><textarea required id="fmsg"></textarea><label>Message</label></div>
+        <button type="submit" class="btn btn-primary">Send Message</button>
+        <div class="form-success serif" id="formSuccess">Message received — I'll reply shortly.</div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="fgrid">
+      <div class="flogo">Sergio Simon Manyonyi</div>
+      <ul>
+        <li><a href="#about">About</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="#experience">Experience</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <a href="#hero" class="back-top">↑</a>
+    </div>
+    <div class="bottom">
+      <span>© 2026 Sergio Simon Manyonyi</span>
+      <span>Designed &amp; developed with passion.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- PROJECT MODAL -->
+<div id="pmodal">
+  <div class="modal-card">
+    <span class="close" id="modalClose">×</span>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script>
+/* ============ DATA ============ */
+const PROJECTS = [
+  {n:"01", title:"International Students Restaurant", tags:["Hospitality","Concept to Detail"], color:"--p1",
+   img:"https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80",
+   brief:"A hospitality concept for a multicultural student community, designed around flexible dining, an active kitchen, and an outdoor terrace.",
+   meta:{"Programme":"Restaurant / Hospitality","Site":"Campus Precinct","Scope":"Concept – Construction Detail","Tools":"Revit · SketchUp · Lumion"},
+   scope:["Design Brief","Concept","Site Analysis","Bubble Diagrams","Spatial Zoning","Plans","Sections","Elevations","3D Views","Construction Details","Kitchen Workflow","Outdoor Terrace","Lessons Learned"]},
+  {n:"02", title:"Elevated Water Tank Structure", tags:["Infrastructure","Structural"], color:"--p5",
+   img:"https://images.unsplash.com/photo-1541976590-713941681591?auto=format&fit=crop&w=1200&q=80",
+   brief:"A structural and architectural study of an elevated water tank, resolving load path, access, and construction sequencing.",
+   meta:{"Programme":"Infrastructure","Site":"Rural Community","Scope":"Structural Concept – Detail","Tools":"AutoCAD · Revit"},
+   scope:["Plans","Elevations","Sections","Axonometric View","Structural Concept","Construction Details"]},
+  {n:"03", title:"Multipurpose Furniture Design", tags:["Product","Fabrication"], color:"--p2",
+   img:"https://images.unsplash.com/photo-1449247709967-d4461a6a6103?auto=format&fit=crop&w=1200&q=80",
+   brief:"A modular furniture piece exploring joinery, material efficiency, and adaptable use across domestic settings.",
+   meta:{"Programme":"Furniture / Product","Material":"Timber & Steel","Scope":"Concept – Fabrication","Tools":"SketchUp · Illustrator"},
+   scope:["Concept Sketches","Exploded Views","Construction Process","Material Selection","Ergonomics","Renderings"]},
+  {n:"04", title:"Small Juice Shop Design", tags:["Retail","Interior"], color:"--p6",
+   img:"https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80",
+   brief:"A compact retail concept maximising a small footprint through efficient planning and a considered material palette.",
+   meta:{"Programme":"Retail / Kiosk","Site":"Urban Street Frontage","Scope":"Concept – Detail","Tools":"ArchiCAD · Enscape"},
+   scope:["Plans","Elevations","Sections","Interior","Construction Details"]},
+  {n:"05", title:"Retaining Wall Design", tags:["Civil","Detailing"], color:"--p4",
+   img:"https://images.unsplash.com/photo-1590986098935-8079d2b17b04?auto=format&fit=crop&w=1200&q=80",
+   brief:"A retaining structure resolving drainage, soil pressure, and construction sequencing for a sloped site condition.",
+   meta:{"Programme":"Civil / Retaining Structure","Site":"Sloped Terrain","Scope":"Construction Documentation","Tools":"AutoCAD"},
+   scope:["Construction Drawings","Wall Sections","Drainage Details","Structural Components","Construction Notes"]},
+  {n:"06", title:"Construction Detailing Portfolio", tags:["Documentation","Archive"], color:"--p3",
+   img:"https://images.unsplash.com/photo-1503387837-b154d5074bd2?auto=format&fit=crop&w=1200&q=80",
+   brief:"A curated archive of construction details spanning envelope, opening, and foundation conditions, developed for buildability.",
+   meta:{"Programme":"Technical Archive","Focus":"Envelope & Structure","Scope":"Documentation","Tools":"Revit · AutoCAD"},
+   scope:["Wall Sections","Roof Details","Window Details","Door Details","Foundation Details","Cladding","Concrete Panels","Joinery"]},
+];
+
+const GALLERY = [
+  {label:"Concept Sketch", img:"https://images.unsplash.com/photo-1481253127861-534498168948?auto=format&fit=crop&w=700&q=80"},
+  {label:"Site Plan", img:"https://images.unsplash.com/photo-1524230572899-a752b3835840?auto=format&fit=crop&w=700&q=80"},
+  {label:"Wall Section", img:"https://images.unsplash.com/photo-1503387837-b154d5074bd2?auto=format&fit=crop&w=700&q=80"},
+  {label:"Elevation Study", img:"https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=700&q=80"},
+  {label:"3D Massing", img:"https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=700&q=80"},
+  {label:"Detail Drawing", img:"https://images.unsplash.com/photo-1541123437800-1bb1317badc2?auto=format&fit=crop&w=700&q=80"},
+  {label:"Interior View", img:"https://images.unsplash.com/photo-1600607687644-c7171b42498b?auto=format&fit=crop&w=700&q=80"},
+  {label:"Structural Axo", img:"https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=700&q=80"},
+  {label:"Material Study", img:"https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=700&q=80"},
+  {label:"Roof Detail", img:"https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=700&q=80"},
+  {label:"Render — Exterior", img:"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=700&q=80"},
+  {label:"Working Drawing", img:"https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=700&q=80"},
+];
+
+/* ============ PRELOADER ============ */
+window.addEventListener("load", () => {
+  const tl = gsap.timeline({onComplete: initSite});
+  tl.to("#preloader .plines path", {strokeDashoffset:0, duration:1.4, stagger:.12, ease:"power2.out"})
+    .to("#preloader .letters path", {strokeDashoffset:0, duration:1.1, stagger:.15, ease:"power2.out"}, "-=0.8")
+    .to({}, {duration:.3})
+    .to("#preloader", {opacity:0, duration:.7, ease:"power2.inOut", onComplete:()=>{document.getElementById('preloader').style.display='none';}});
+
+  let pct = {v:0};
+  gsap.to(pct, {v:100, duration:2.6, ease:"power1.inOut", onUpdate:()=>{
+    document.getElementById('preloadPct').textContent = "LOADING — " + String(Math.floor(pct.v)).padStart(2,'0') + "%";
+  }});
+});
+
+function initSite(){
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* reveal on scroll */
+  document.querySelectorAll('.reveal').forEach(el=>{
+    gsap.to(el,{opacity:1,y:0,duration:1,ease:"power3.out",
+      scrollTrigger:{trigger:el,start:"top 88%"}});
+  });
+
+  /* hero entrance */
+  gsap.timeline()
+    .to("#hero .tagline",{opacity:1,y:0,duration:.8,ease:"power3.out"})
+    .fromTo("#nameReveal",{y:"100%"},{y:"0%",duration:1,ease:"power4.out"},"-=0.4")
+    .fromTo("#hero h1 .name-line span",{y:"100%"},{y:"0%",duration:1,ease:"power4.out"},"-=0.8")
+    .fromTo("#hero .role-strip span",{opacity:0,y:12},{opacity:1,y:0,stagger:.08,duration:.6},"-=0.4")
+    .fromTo("#hero .headline",{opacity:0,y:16},{opacity:1,y:0,duration:.8},"-=0.3")
+    .fromTo("#hero .sub",{opacity:0,y:16},{opacity:1,y:0,duration:.8},"-=0.5")
+    .fromTo("#hero .hero-actions",{opacity:0,y:16},{opacity:1,y:0,duration:.8},"-=0.5");
+  gsap.set("#hero .tagline",{opacity:0,y:12});
+
+  /* counters */
+  document.querySelectorAll('[data-count]').forEach(el=>{
+    const target = +el.dataset.count;
+    ScrollTrigger.create({trigger:el, start:"top 90%", once:true, onEnter:()=>{
+      gsap.to(el,{innerText:target,duration:1.6,snap:{innerText:1},ease:"power2.out"});
+    }});
+  });
+
+  /* nav hide on scroll down */
+  let lastY = window.scrollY;
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', ()=>{
+    const y = window.scrollY;
+    if(y > lastY && y > 140){ nav.classList.add('nav-hide'); } else { nav.classList.remove('nav-hide'); }
+    lastY = y;
+  });
+}
+
+/* ============ CUSTOM CURSOR ============ */
+const dot = document.getElementById('cursorDot');
+const ring = document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+window.addEventListener('mousemove', e=>{ mx=e.clientX; my=e.clientY; dot.style.left=mx+'px'; dot.style.top=my+'px'; });
+function ringLoop(){ rx += (mx-rx)*0.16; ry += (my-ry)*0.16; ring.style.left=rx+'px'; ring.style.top=ry+'px'; requestAnimationFrame(ringLoop); }
+ringLoop();
+
+document.querySelectorAll('a,button,.skill-card,.project-row,.g-item').forEach(el=>{
+  el.addEventListener('mouseenter', ()=>{
+    ring.classList.add('big');
+    document.getElementById('cursorLabel').textContent = el.classList.contains('project-row') ? 'VIEW' : (el.tagName==='A'||el.tagName==='BUTTON') ? 'OPEN' : '';
+  });
+  el.addEventListener('mouseleave', ()=> ring.classList.remove('big'));
+});
+
+/* ============ BUILD PROJECT LIST ============ */
+const projectList = document.getElementById('projectList');
+const preview = document.getElementById('projPreview');
+const previewText = document.getElementById('projPreviewText');
+
+const PALETTE_NAMES = {"--p1":"Sage Green","--p2":"Warm Bronze","--p3":"Architectural Blue","--p4":"Clay Terracotta","--p5":"Brushed Steel","--p6":"Olive Stone"};
+const legend = document.getElementById('paletteLegend');
+PROJECTS.forEach(p=>{
+  const item = document.createElement('div');
+  item.className = 'pl-item';
+  item.innerHTML = `<span class="pl-swatch" style="background:var(${p.color});"></span>${PALETTE_NAMES[p.color]} — ${p.title}`;
+  legend.appendChild(item);
+});
+
+const previewImg = document.getElementById('projPreviewImg');
+const previewBar = document.getElementById('projPreviewBar');
+
+PROJECTS.forEach((p, i)=>{
+  const row = document.createElement('div');
+  row.className = 'project-row';
+  row.style.setProperty('--accent-c', `var(${p.color})`);
+  row.innerHTML = `
+    <span class="pnum mono"><span class="pdot"></span>${p.n}</span>
+    <h3>${p.title}</h3>
+    <div class="ptags">${p.tags.map(t=>`<span>${t}</span>`).join('')}</div>
+    <span class="parrow">↗</span>
+  `;
+  row.addEventListener('mouseenter', ()=>{
+    previewImg.src = p.img;
+    previewImg.alt = p.title + ' — placeholder image, replace with your own render';
+    previewImg.style.display='block';
+    previewText.style.display='none';
+    previewBar.style.background = `var(${p.color})`;
+    preview.style.opacity=1; preview.style.transform='scale(1)';
+  });
+  previewImg.addEventListener('error', ()=>{ previewImg.style.display='none'; previewText.style.display='flex'; previewText.textContent = previewText.dataset.t || ''; });
+  row.addEventListener('mouseleave', ()=>{ preview.style.opacity=0; preview.style.transform='scale(.9)'; });
+  row.addEventListener('mousemove', e=>{ preview.style.left = (e.clientX+24)+'px'; preview.style.top = (e.clientY-95)+'px'; previewText.dataset.t = p.title; });
+  row.addEventListener('click', ()=> openModal(p));
+  projectList.appendChild(row);
+});
+
+function openModal(p){
+  document.getElementById('modalContent').innerHTML = `
+    <img class="mhero" src="${p.img}" alt="${p.title} — placeholder image, replace with your own render" loading="lazy" onerror="this.style.display='none'">
+    <div class="msub mono" style="color:var(${p.color});">Project ${p.n} — ${p.tags.join(' · ')}</div>
+    <div class="mtitle">${p.title}</div>
+    <p>${p.brief}</p>
+    <div class="mmeta">${Object.entries(p.meta).map(([k,v])=>`<div><span>${k}</span>${v}</div>`).join('')}</div>
+    <p style="margin-top:6px;color:var(--text);font-weight:500;font-size:13px;letter-spacing:.04em;text-transform:uppercase;">Package includes</p>
+    <div class="mtags">${p.scope.map(s=>`<span>${s}</span>`).join('')}</div>
+  `;
+  document.getElementById('pmodal').classList.add('open');
+}
+document.getElementById('modalClose').addEventListener('click', ()=> document.getElementById('pmodal').classList.remove('open'));
+document.getElementById('pmodal').addEventListener('click', e=>{ if(e.target.id==='pmodal') e.currentTarget.classList.remove('open'); });
+
+/* ============ MARQUEE DUPLICATE ============ */
+const marquee = document.getElementById('marqueeTrack');
+marquee.innerHTML += marquee.innerHTML;
+
+/* ============ GALLERY ============ */
+const galleryGrid = document.getElementById('galleryGrid');
+GALLERY.forEach((g,i)=>{
+  const h = 180 + (i%4)*60;
+  const div = document.createElement('div');
+  div.className = 'g-item';
+  div.style.height = h+'px';
+  div.innerHTML = `<img src="${g.img}" alt="${g.label} — placeholder image, replace with your own work" loading="lazy" onerror="this.remove()"><div class="g-label mono">${g.label}</div>`;
+  galleryGrid.appendChild(div);
+});
+
+/* ============ CONTACT FORM ============ */
+document.querySelectorAll('.field input,.field textarea').forEach(f=>{
+  f.addEventListener('input', ()=> f.parentElement.classList.toggle('filled', f.value.length>0));
+});
+document.getElementById('contactForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const form = e.target;
+  gsap.to(form, {opacity:0, duration:.4, onComplete:()=>{
+    form.style.display='none';
+    document.getElementById('formSuccess').style.display='block';
+    gsap.fromTo('#formSuccess',{opacity:0,y:10},{opacity:1,y:0,duration:.6});
+  }});
+});
+
+/* ============ CV BUTTON ============ */
+document.getElementById('cvBtn').addEventListener('click', e=>{
+  e.preventDefault();
+  alert('CV download coming soon — reach out via the contact form for a copy in the meantime.');
+});
+</script>
+</body>
+</html>
